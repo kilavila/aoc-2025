@@ -14,7 +14,7 @@ for line in io.lines("./input.txt", "*l") do
 end
 
 local p1_sum = 0
-local p2_sum = 0
+local p2_sum = tonumber(0)
 
 -- INFO: PART 1
 
@@ -50,95 +50,56 @@ table.sort(ingredient_id_ranges, function(a, b)
 	return aa < ba
 end)
 
-local parsed_ranges = {}
+while true do
+	local updated_ranges = {}
+	local found_overlap = false
+
+	for key, range in ipairs(ingredient_id_ranges) do
+		if range == "removed" then
+			goto skip
+		end
+
+		local min, max = range:match("^(%d+)%-(%d+)")
+
+		for i = key + 1, #ingredient_id_ranges, 1 do
+			local r = ingredient_id_ranges[i]
+			if r == "removed" then
+				goto next
+			end
+
+			local r_min, r_max = r:match("^(%d+)%-(%d+)")
+
+			if tonumber(max) >= tonumber(r_max) then
+				ingredient_id_ranges[i] = "removed"
+				found_overlap = true
+			elseif tonumber(max) >= tonumber(r_min) then
+				max = r_max
+				ingredient_id_ranges[i] = "removed"
+				found_overlap = true
+			else
+				break
+			end
+
+			::next::
+		end
+
+		table.insert(updated_ranges, min .. "-" .. max)
+
+		::skip::
+	end
+
+	if not found_overlap then break end
+	ingredient_id_ranges = updated_ranges
+end
 
 for _, range in ipairs(ingredient_id_ranges) do
-	local min, max = range:match("^(%d+)%-(%d+)$")
+	local min, max = range:match("^(%d+)%-(%d+)")
+	min, max = tonumber(min), tonumber(max)
 
-	local duplicate = false
-
-	for _, existing in ipairs(parsed_ranges) do
-		if min == existing.min and max == existing.max then
-			duplicate = true
-		end
-	end
-
-	if not duplicate then
-		local new = {
-			min = min,
-			max = max,
-		}
-
-		table.insert(parsed_ranges, new)
-	end
-end
-
--- all duplicates should be gone
-
-for key, range in ipairs(parsed_ranges) do
-	for i = key + 1, #parsed_ranges, 1 do
-		if type(range) == "table" and type(parsed_ranges[i]) == "table" then
-			if tonumber(range.max) >= tonumber(parsed_ranges[i].min) then
-				parsed_ranges[key].max = parsed_ranges[i].max
-				parsed_ranges[i] = "removed"
-			end
-		end
-	end
-end
-
--- wtf am I doing???
-
-local test = {}
-
-for _, r in ipairs(parsed_ranges) do
-	if type(r) == "table" then
-		print(r.min .. "-" .. r.max)
-		table.insert(test, r)
-	else
-		print(r)
-	end
-end
-
-for key, range in ipairs(test) do
-	for i = key + 1, #test, 1 do
-		if type(range) == "table" and type(test[i]) == "table" then
-			if tonumber(range.max) >= tonumber(test[i].min) then
-				test[key].max = test[i].max
-				test[i] = "removed"
-			end
-		end
-	end
-end
-
--- any overlapping ranges should be gone
-
-local test2 = {}
-
-for _, r in ipairs(test) do
-	if type(r) == "table" then
-		print(r.min .. "-" .. r.max)
-		table.insert(test2, r)
-	else
-		print(r)
-	end
-end
-
--- INFO: SUM
-for _, range in ipairs(test2) do
-	local sum = range.max - range.min + 1
+	local sum = (max - min) + 1
 	p2_sum = p2_sum + sum
 end
 
 print()
 print(p1_sum)
 print(string.format('%i', p2_sum))
-
--- Correct p1: 698
---         p2: 271456926034589 too low
---             274068083644613 wrong
---             319265493577458 wrong
---             328359266119885 wrong
---             337591730380065 wrong
---             353065269189388 wrong
---             447509460007256 wrong
---             447509460006892 too high
