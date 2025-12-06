@@ -1,3 +1,6 @@
+local timer = {}
+timer.start = os.clock()
+
 local ingredient_id_ranges = {}
 local ingredient_ids = {}
 
@@ -100,6 +103,9 @@ for _, range in ipairs(ingredient_id_ranges) do
 	p2_sum = p2_sum + sum
 end
 
-print()
 print(p1_sum)
 print(string.format('%i', p2_sum))
+
+timer.stop = os.clock()
+timer.diff = (timer.stop - timer.start) * 1000
+print(timer.diff .. "ms")

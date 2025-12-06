@@ -1,3 +1,6 @@
+local timer = {}
+timer.start = os.clock()
+
 local input = "./input.txt"
 
 -- INFO: PART 1
@@ -93,6 +96,9 @@ for key, line in ipairs(rotated_all_chars) do
 end
 
 
--- SUM
-print(p1_sum) -- 4277556
-print(p2_sum) -- 3263827
+print(p1_sum)
+print(p2_sum)
+
+timer.stop = os.clock()
+timer.diff = (timer.stop - timer.start) * 1000
+print(timer.diff .. "ms")
