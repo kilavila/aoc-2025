@@ -78,8 +78,8 @@ for key, line in ipairs(rotated_all_chars) do
 
 		local eq = line
 
-		for i = key + 1, #rotated_all_chars, 1 do
-			local next_line = rotated_all_chars[i]
+		for k = key + 1, #rotated_all_chars, 1 do
+			local next_line = rotated_all_chars[k]
 			next_line = next_line:gsub(" ", "")
 
 			if next_line == "" then break end
